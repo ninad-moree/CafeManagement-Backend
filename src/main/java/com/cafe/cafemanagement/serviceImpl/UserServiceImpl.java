@@ -22,6 +22,7 @@ import com.cafe.cafemanagement.constants.CafeConstants;
 import com.cafe.cafemanagement.dao.UserDao;
 import com.cafe.cafemanagement.service.UserService;
 import com.cafe.cafemanagement.utils.CafeUtils;
+import com.cafe.cafemanagement.utils.EmailUtils;
 import com.cafe.cafemanagement.wrapper.UserWrapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     JwtFilter jwtFilter;
+
+    @Autowired
+    EmailUtils emailUtils;
 
     /* ################################## SIGN UP METHOD ################################## */
     @Override
@@ -145,6 +149,7 @@ public class UserServiceImpl implements UserService {
                 Optional<User> optional =  userDao.findById(Integer.parseInt(requestMap.get("id")));
                 if(!optional.isEmpty()) {
                     userDao.updateStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
+                    sendMailToAllAdmin(requestMap.get("status"), optional.get().getEmail(), userDao.getAllAdmin());
                     return CafeUtils.getResponseEntity("user status updated successfully", HttpStatus.OK);
                 } else {
                     return CafeUtils.getResponseEntity("User Id does not exist", HttpStatus.OK);
@@ -156,5 +161,23 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
         }
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private void sendMailToAllAdmin(String status, String user, List<String> allAdmin) {
+        allAdmin.remove(jwtFilter.getCurrentUser());
+
+        if(status!=null && status.equalsIgnoreCase("true")) {
+            emailUtils.sendSimpleMessage(
+                jwtFilter.getCurrentUser(), 
+                "Account Approved", "USER:- " + user + "\n is approved by \nADMIN:- " + jwtFilter.getCurrentUser(), 
+                allAdmin
+            );
+        }  else {
+            emailUtils.sendSimpleMessage(
+                jwtFilter.getCurrentUser(), 
+                "Account Disabled", "USER:- " + user + "\n is disabled by \nADMIN:- " + jwtFilter.getCurrentUser(), 
+                allAdmin
+            );
+        }
     }
 }
