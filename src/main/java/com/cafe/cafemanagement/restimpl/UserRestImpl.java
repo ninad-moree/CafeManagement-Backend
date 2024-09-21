@@ -1,5 +1,7 @@
 package com.cafe.cafemanagement.restimpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import com.cafe.cafemanagement.constants.CafeConstants;
 import com.cafe.cafemanagement.rest.UserRest;
 import com.cafe.cafemanagement.service.UserService;
 import com.cafe.cafemanagement.utils.CafeUtils;
+import com.cafe.cafemanagement.wrapper.UserWrapper;
 
 @RestController
 public class UserRestImpl implements UserRest {
@@ -36,6 +39,16 @@ public class UserRestImpl implements UserRest {
             e.printStackTrace();
         }
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<UserWrapper>> getAllUser() {
+        try {
+            return userService.getAllUser();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<List<UserWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

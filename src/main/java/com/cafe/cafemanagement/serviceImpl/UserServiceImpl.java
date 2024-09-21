@@ -1,5 +1,7 @@
 package com.cafe.cafemanagement.serviceImpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -13,12 +15,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.cafe.cafemanagement.JWT.CustomerUsersDetailsService;
+import com.cafe.cafemanagement.JWT.JwtFilter;
 import com.cafe.cafemanagement.JWT.JwtUtil;
 import com.cafe.cafemanagement.POJO.User;
 import com.cafe.cafemanagement.constants.CafeConstants;
 import com.cafe.cafemanagement.dao.UserDao;
 import com.cafe.cafemanagement.service.UserService;
 import com.cafe.cafemanagement.utils.CafeUtils;
+import com.cafe.cafemanagement.wrapper.UserWrapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,6 +41,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     JwtUtil jwtUtil;
+
+    @Autowired
+    JwtFilter jwtFilter;
 
     /* ################################## SIGN UP METHOD ################################## */
     @Override
@@ -112,5 +119,21 @@ public class UserServiceImpl implements UserService {
         }
 
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /* ################################## GET ALL USERS METHOD ################################## */
+    @Override
+    public ResponseEntity<List<UserWrapper>> getAllUser() {
+        try {
+            if(jwtFilter.isAdmin()) {
+                return new ResponseEntity<>(userDao.getAllUser(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
