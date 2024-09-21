@@ -3,11 +3,17 @@ package com.cafe.cafemanagement.serviceImpl;
 import java.util.Map;
 import java.util.Objects;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import com.cafe.cafemanagement.JWT.CustomerUsersDetailsService;
+import com.cafe.cafemanagement.JWT.JwtUtil;
 import com.cafe.cafemanagement.POJO.User;
 import com.cafe.cafemanagement.constants.CafeConstants;
 import com.cafe.cafemanagement.dao.UserDao;
@@ -23,9 +29,20 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserDao userDao;
 
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+    @Autowired
+    CustomerUsersDetailsService customerUsersDetailsService;
+
+    @Autowired
+    JwtUtil jwtUtil;
+
+    /* ################################## SIGN UP METHOD ################################## */
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
-        log.info("Inside signup ", requestMap);
+        log.info("Inside signup: {} ", requestMap);
+
         try {
             if(validateSignupMap(requestMap)) {
                 User user = userDao.findByEmailId(requestMap.get("email"));
@@ -41,6 +58,7 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -62,5 +80,37 @@ public class UserServiceImpl implements UserService {
         user.setStatus("false");
         user.setRole("user");
         return user;
+    }
+
+    /* ################################## LOGIN METHOD ################################## */
+    @Override
+    public ResponseEntity<String> login(Map<String, String> requestMap) {
+        log.info("Inside login");
+
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password"))
+            );
+
+            if(auth.isAuthenticated()) {
+                if(customerUsersDetailsService.getUserDetail().getStatus().equalsIgnoreCase("true")) {
+                    return new ResponseEntity<String>(
+                        "{\"token\":\"" + 
+                        jwtUtil.generateToken(
+                            customerUsersDetailsService.getUserDetail().getEmail(), 
+                            customerUsersDetailsService.getUserDetail().getRole()
+                        ) 
+                        + "\"}", 
+                        HttpStatus.OK
+                    );
+                } else {
+                    new ResponseEntity<String>("{\"message\":\""+"Wait for admin approval"+"\"}", HttpStatus.BAD_REQUEST);
+                }
+            }
+        } catch (Exception e) {
+            log.error("{}", e);
+        }
+
+        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

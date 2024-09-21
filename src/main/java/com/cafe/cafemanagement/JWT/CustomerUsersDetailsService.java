@@ -25,7 +25,7 @@ public class CustomerUsersDetailsService implements UserDetailsService {
     
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("Inside loadUserByName:", username);
+        log.info("Inside loadUserByName: {}", username);
         userDetail = userDao.findByEmailId(username);
         if(!Objects.isNull(userDetail)) 
             return new User(userDetail.getEmail(), userDetail.getPassword(), new ArrayList<>());
@@ -34,6 +34,10 @@ public class CustomerUsersDetailsService implements UserDetailsService {
     }
 
     public com.cafe.cafemanagement.POJO.User getUserDetail() {
+        // com.cafe.cafemanagement.POJO.User user = userDetail;
+        // user.setPassword(null);
+        // return user;
+
         return userDetail;
     }
 }
