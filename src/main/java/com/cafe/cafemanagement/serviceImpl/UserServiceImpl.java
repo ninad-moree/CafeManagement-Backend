@@ -24,6 +24,7 @@ import com.cafe.cafemanagement.service.UserService;
 import com.cafe.cafemanagement.utils.CafeUtils;
 import com.cafe.cafemanagement.utils.EmailUtils;
 import com.cafe.cafemanagement.wrapper.UserWrapper;
+import com.google.common.base.Strings;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -202,6 +203,22 @@ public class UserServiceImpl implements UserService {
                 return CafeUtils.getResponseEntity("Incorrect old password", HttpStatus.BAD_REQUEST);
             }
             return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /* ################################## FORGET PASSWORD METHOD ################################## */
+    @Override
+    public ResponseEntity<String> forgotPassword(Map<String, String> requestMap) {
+        try {
+            User user = userDao.findByEmail(requestMap.get("email"));
+            if(!Objects.isNull(user) && !Strings.isNullOrEmpty(user.getEmail())) {
+                emailUtils.forgotPasswordEmail(user.getEmail(), "Credentials by Cafe Management", user.getPassword());
+            }
+            return CafeUtils.getResponseEntity("Check your mail for credentials", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
         }
