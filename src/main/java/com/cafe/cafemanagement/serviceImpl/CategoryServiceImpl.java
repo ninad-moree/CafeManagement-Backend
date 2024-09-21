@@ -1,5 +1,7 @@
 package com.cafe.cafemanagement.serviceImpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,11 @@ import com.cafe.cafemanagement.constants.CafeConstants;
 import com.cafe.cafemanagement.dao.CategoryDao;
 import com.cafe.cafemanagement.service.CategoryService;
 import com.cafe.cafemanagement.utils.CafeUtils;
+import com.google.common.base.Strings;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -37,6 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -61,5 +68,18 @@ public class CategoryServiceImpl implements CategoryService {
         return category;
     }
 
+    @Override
+    public ResponseEntity<List<Category>> getAllCategory(String filterValue) {
+        try {
+            if(!Strings.isNullOrEmpty(filterValue)  && filterValue.equalsIgnoreCase("true")) {
+                log.info("inside if");
+                return new ResponseEntity<List<Category>>(categoryDao.getAllCategories(), HttpStatus.OK);
+            } 
+            return new ResponseEntity<List<Category>>(categoryDao.findAll(), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        return new ResponseEntity<List<Category>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
