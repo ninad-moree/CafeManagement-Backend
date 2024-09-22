@@ -153,4 +153,14 @@ public class ProductServiceImpl implements ProductService {
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    public ResponseEntity<List<ProductWrapper>> getAllProductByCategory(Integer id) {
+        try {
+            return new ResponseEntity<>(productDao.getProductByCategory(id), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }
