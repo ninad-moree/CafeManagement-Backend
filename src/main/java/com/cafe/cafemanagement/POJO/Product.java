@@ -4,10 +4,12 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.NamedQuery;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -15,20 +17,13 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import lombok.Data;
 
-@NamedQuery(
-    name = "Category.getAllCategories", 
-    query = "select c from Category c where c.id in (select p.category from Product p where p.status='true')"
-)
-
 @Data
 @Entity
 @DynamicInsert
 @DynamicUpdate
-@Table(name = "category")
-public class Category implements Serializable {
-
-    @SuppressWarnings("unused")
-    private static final long serialVersionId = 1L;
+@Table(name = "product")
+public class Product implements Serializable {
+    public static final Long serialVersionId = 123456L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,4 +32,17 @@ public class Category implements Serializable {
 
     @Column(name = "name")
     private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_fk", nullable = false)
+    private Category category;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "price")
+    private Integer price;
+
+    @Column(name = "status")
+    private String status;
 }
