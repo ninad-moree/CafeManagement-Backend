@@ -98,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
                         productDao.save(product);
                         return CafeUtils.getResponseEntity("Product updated successfully", HttpStatus.OK);
                     } else {
-                        return CafeUtils.getResponseEntity("Product id dose not exists.", HttpStatus.OK);
+                        return CafeUtils.getResponseEntity("Product id does not exists.", HttpStatus.OK);
                     }
                 } else {
                     return CafeUtils.getResponseEntity(CafeConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
@@ -110,6 +110,26 @@ public class ProductServiceImpl implements ProductService {
             e.printStackTrace();
         }
 
+        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> deleteProduct(Integer id) {
+        try {
+            if(jwtFilter.isAdmin()) {
+                Optional<Product> optional =  productDao.findById(id);
+                if(!optional.isEmpty()) {
+                    productDao.deleteById(id);
+                    return CafeUtils.getResponseEntity("Product deleted successfully", HttpStatus.OK); 
+                } else {
+                    return CafeUtils.getResponseEntity("Product id does not exists.", HttpStatus.OK);
+                }
+            } else {
+                return CafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
