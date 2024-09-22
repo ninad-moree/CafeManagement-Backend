@@ -23,6 +23,11 @@ import lombok.Data;
     query = "select new com.cafe.cafemanagement.wrapper.ProductWrapper(p.id, p.name, p.description, p.price, p.status, p.category.id, p.category.name) from Product p"
 )
 
+@NamedQuery(
+    name = "Product.updateProductStatus",
+    query = "update Product p set p.status=:status where p.id=:id"
+)
+
 @Data
 @Entity
 @DynamicInsert
