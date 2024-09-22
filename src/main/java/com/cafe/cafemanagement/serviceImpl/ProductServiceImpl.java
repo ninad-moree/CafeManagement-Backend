@@ -1,5 +1,7 @@
 package com.cafe.cafemanagement.serviceImpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import com.cafe.cafemanagement.constants.CafeConstants;
 import com.cafe.cafemanagement.dao.ProductDao;
 import com.cafe.cafemanagement.service.ProductService;
 import com.cafe.cafemanagement.utils.CafeUtils;
+import com.cafe.cafemanagement.wrapper.ProductWrapper;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -70,6 +73,16 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return false;
+    }
+
+    @Override
+    public ResponseEntity<List<ProductWrapper>> getAllProduct() {
+        try {
+            return new ResponseEntity<>(productDao.getAllProduct(), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }
