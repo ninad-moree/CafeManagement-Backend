@@ -1,6 +1,8 @@
 package com.cafe.cafemanagement.serviceImpl;
 
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -178,5 +180,18 @@ public class BillServiceImpl implements BillService {
                 requestMap.containsKey("paymentMethod") && 
                 requestMap.containsKey("productDetails") && 
                 requestMap.containsKey("total");
+    }
+
+    @Override
+    public ResponseEntity<List<Bill>> getBills() {
+        List<Bill> list = new ArrayList<>();
+
+        if(jwtFilter.isAdmin()) {
+            list = billDao.getAllBills();
+        } else {
+            list = billDao.getBillByUserName(jwtFilter.getCurrentUser());
+        }
+
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }
