@@ -20,7 +20,6 @@ public class BillRestImpl implements BillRest {
     @Autowired
     BillService  billService;
 
-
     @Override
     public ResponseEntity<String> generateReport(Map<String, Object> requestMap) {
         try {
@@ -31,11 +30,20 @@ public class BillRestImpl implements BillRest {
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-
     @Override
     public ResponseEntity<List<Bill>> getBills() {
         try {
             return billService.getBills();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<byte[]> getPdf(Map<String, Object> requestMap) {
+        try {
+            return billService.getPdf(requestMap);
         } catch (Exception e) {
             e.printStackTrace();
         }

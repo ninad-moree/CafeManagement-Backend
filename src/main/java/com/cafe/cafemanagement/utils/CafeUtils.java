@@ -1,5 +1,6 @@
 package com.cafe.cafemanagement.utils;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,9 @@ import com.google.common.base.Strings;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class CafeUtils {
     private CafeUtils() {}
 
@@ -35,6 +39,19 @@ public class CafeUtils {
         if(!Strings.isNullOrEmpty(data)) 
             return new Gson().fromJson(data, new TypeToken<Map<String, Object>>() {}.getType());
         return new HashMap<>();
+    }
+
+    public static Boolean isFileExist(String filePath) {
+        log.info("Inside isFileExist: {}", filePath);
+
+        try {
+            File file = new File(filePath);
+            return (file != null && file.exists()) ? Boolean.TRUE : Boolean.FALSE;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
 }
