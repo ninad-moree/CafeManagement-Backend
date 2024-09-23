@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.pdfbox.io.IOUtils;
@@ -232,5 +233,23 @@ public class BillServiceImpl implements BillService {
         byte[] byteArray = IOUtils.toByteArray(targetStream);
         targetStream.close();
         return byteArray;
+    }
+
+    @Override
+    public ResponseEntity<String> deleteBill(Integer id) {
+        try {
+            Optional<Bill> optional = billDao.findById(id);
+
+            if(!optional.isEmpty()) {
+                billDao.deleteById(id);
+                return CafeUtils.getResponseEntity("Bill deleted successfully", HttpStatus.OK);
+            } else {
+                return CafeUtils.getResponseEntity("Bill Id does not exists.", HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
